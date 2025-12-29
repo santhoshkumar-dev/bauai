@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Select,
   SelectContent,
@@ -6,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Filter } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Status } from "@/types";
 
 interface FilterBarProps {
@@ -13,24 +16,26 @@ interface FilterBarProps {
   onStatusFilterChange: (status: Status | "all") => void;
 }
 
-const STATUS_OPTIONS: { value: Status | "all"; label: string }[] = [
-  { value: "all", label: "All Requests" },
-  { value: "pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-  { value: "fulfilled", label: "Fulfilled" },
-];
-
 export function FilterBar({
   statusFilter,
   onStatusFilterChange,
 }: FilterBarProps) {
+  const { t } = useLanguage();
+
+  const STATUS_OPTIONS: { value: Status | "all"; label: string }[] = [
+    { value: "all", label: t.filter.allRequests },
+    { value: "pending", label: t.status.pending },
+    { value: "approved", label: t.status.approved },
+    { value: "rejected", label: t.status.rejected },
+    { value: "fulfilled", label: t.status.fulfilled },
+  ];
+
   return (
     <div className="mb-4 flex items-center gap-4">
       <div className="flex items-center gap-2">
         <Filter className="h-4 w-4 text-gray-500" />
         <span className="text-sm font-medium text-gray-700">
-          Filter by Status:
+          {t.filter.filterByStatus}
         </span>
       </div>
       <Select value={statusFilter} onValueChange={onStatusFilterChange}>

@@ -29,6 +29,7 @@ import {
   type MaterialRequestFormData,
 } from "@/schema/materialRequest.schema";
 import { useUpdateRequest } from "@/hooks/useUpdateRequest";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { MaterialRequest, Priority, Unit } from "@/types";
 
 interface EditRequestDialogProps {
@@ -45,6 +46,7 @@ export function EditRequestDialog({
   open,
   onOpenChange,
 }: EditRequestDialogProps) {
+  const { t, locale } = useLanguage();
   const updateRequest = useUpdateRequest();
 
   const {
@@ -92,19 +94,17 @@ export function EditRequestDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Material Request</DialogTitle>
-          <DialogDescription>
-            Update the details of your material request.
-          </DialogDescription>
+          <DialogTitle>{t.form.editTitle}</DialogTitle>
+          <DialogDescription>{t.form.editDescription}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Material Name */}
           <div className="space-y-2">
-            <Label htmlFor="edit_material_name">Material Name *</Label>
+            <Label htmlFor="edit_material_name">{t.form.materialName} *</Label>
             <Input
               id="edit_material_name"
-              placeholder="e.g., Portland Cement, Steel Rebar"
+              placeholder={t.form.materialNamePlaceholder}
               {...register("material_name")}
             />
             {errors.material_name && (
@@ -117,7 +117,7 @@ export function EditRequestDialog({
           {/* Quantity and Unit */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edit_quantity">Quantity *</Label>
+              <Label htmlFor="edit_quantity">{t.form.quantity} *</Label>
               <Input
                 id="edit_quantity"
                 type="number"
@@ -133,7 +133,7 @@ export function EditRequestDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit_unit">Unit *</Label>
+              <Label htmlFor="edit_unit">{t.form.unit} *</Label>
               <Select
                 value={watch("unit")}
                 onValueChange={(value) => setValue("unit", value as Unit)}
@@ -154,7 +154,7 @@ export function EditRequestDialog({
 
           {/* Priority */}
           <div className="space-y-2">
-            <Label htmlFor="edit_priority">Priority *</Label>
+            <Label htmlFor="edit_priority">{t.form.priority} *</Label>
             <Select
               value={watch("priority")}
               onValueChange={(value) => setValue("priority", value as Priority)}
@@ -165,7 +165,7 @@ export function EditRequestDialog({
               <SelectContent>
                 {PRIORITIES.map((priority) => (
                   <SelectItem key={priority} value={priority}>
-                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                    {t.priority[priority]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -177,10 +177,10 @@ export function EditRequestDialog({
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="edit_notes">Notes (Optional)</Label>
+            <Label htmlFor="edit_notes">{t.form.notes}</Label>
             <Textarea
               id="edit_notes"
-              placeholder="Additional information about this request..."
+              placeholder={t.form.notesPlaceholder}
               rows={3}
               {...register("notes")}
             />
@@ -192,18 +192,18 @@ export function EditRequestDialog({
           {/* Current Status Info */}
           <Alert>
             <AlertDescription>
-              Current Status: <strong>{request.status}</strong>
+              {t.table.status}: <strong>{t.status[request.status]}</strong>
               <br />
-              To change the status, use the dropdown in the table.
+              {locale === "de"
+                ? "Um den Status zu ändern, verwenden Sie das Dropdown in der Tabelle."
+                : "To change the status, use the dropdown in the table."}
             </AlertDescription>
           </Alert>
 
           {/* Error Alert */}
           {updateRequest.isError && (
             <Alert variant="destructive">
-              <AlertDescription>
-                Failed to update request. Please try again.
-              </AlertDescription>
+              <AlertDescription>{t.errors.updateFailed}</AlertDescription>
             </Alert>
           )}
 
@@ -213,16 +213,16 @@ export function EditRequestDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t.buttons.cancel}
             </Button>
             <Button type="submit" disabled={updateRequest.isPending}>
               {updateRequest.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
+                  {t.buttons.saving}
                 </>
               ) : (
-                "Save Changes"
+                t.buttons.save
               )}
             </Button>
           </DialogFooter>

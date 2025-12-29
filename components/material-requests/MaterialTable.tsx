@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pencil, Trash2, Download } from "lucide-react";
-import { StatusBadge } from "./StatusBadge";
 import { PriorityBadge } from "./PriorityBadge";
 import { StatusDropdown } from "./StatusDropdown";
 import { ConfirmDialog } from "./ConfirmDialog";
@@ -20,9 +19,11 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { useUpdateRequest } from "@/hooks/useUpdateRequest";
 import { useDeleteRequest } from "@/hooks/useDeleteRequest";
 import { exportToCSV } from "@/lib/exportCSV";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { MaterialRequest, Status } from "@/types";
 import type { MaterialRequestWithUser } from "@/hooks/useMaterialRequests";
 import { format } from "date-fns";
+import { de, enUS } from "date-fns/locale";
 
 interface MaterialTableProps {
   requests: MaterialRequestWithUser[];
@@ -35,6 +36,7 @@ export function MaterialTable({
   isLoading,
   onEdit,
 }: MaterialTableProps) {
+  const { t, locale } = useLanguage();
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     type: "status" | "delete";
@@ -44,6 +46,8 @@ export function MaterialTable({
 
   const updateRequest = useUpdateRequest();
   const deleteRequest = useDeleteRequest();
+
+  const dateLocale = locale === "de" ? de : enUS;
 
   const handleStatusChange = (requestId: string, newStatus: Status) => {
     setConfirmDialog({
@@ -106,7 +110,7 @@ export function MaterialTable({
       <div className="mb-4 flex justify-end">
         <Button onClick={handleExport} variant="outline" size="sm">
           <Download className="h-4 w-4 mr-2" />
-          Export to CSV
+          {t.table.exportToCSV}
         </Button>
       </div>
 
@@ -114,14 +118,14 @@ export function MaterialTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Material Name</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Requested By</TableHead>
-              <TableHead>Requested At</TableHead>
-              <TableHead>Notes</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t.table.materialName}</TableHead>
+              <TableHead>{t.table.quantity}</TableHead>
+              <TableHead>{t.table.status}</TableHead>
+              <TableHead>{t.table.priority}</TableHead>
+              <TableHead>{t.table.requestedBy}</TableHead>
+              <TableHead>{t.table.requestedAt}</TableHead>
+              <TableHead>{t.table.notes}</TableHead>
+              <TableHead className="text-right">{t.table.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -149,7 +153,9 @@ export function MaterialTable({
                   <div className="text-sm">{request.requested_by_email}</div>
                 </TableCell>
                 <TableCell>
-                  {format(new Date(request.requested_at), "MMM d, yyyy")}
+                  {format(new Date(request.requested_at), "MMM d, yyyy", {
+                    locale: dateLocale,
+                  })}
                 </TableCell>
                 <TableCell className="max-w-xs">
                   <div className="truncate text-sm text-gray-600">
@@ -162,7 +168,7 @@ export function MaterialTable({
                       variant="ghost"
                       size="sm"
                       onClick={() => onEdit(request)}
-                      title="Edit request"
+                      title={t.table.editRequest}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -171,7 +177,7 @@ export function MaterialTable({
                       size="sm"
                       onClick={() => handleDeleteClick(request.id)}
                       disabled={deleteRequest.isPending}
-                      title="Delete request"
+                      title={t.table.deleteRequest}
                     >
                       <Trash2 className="h-4 w-4 text-red-600" />
                     </Button>
@@ -187,18 +193,24 @@ export function MaterialTable({
       <ConfirmDialog
         open={confirmDialog.open && confirmDialog.type === "status"}
         onOpenChange={(open) => setConfirmDialog({ open, type: "status" })}
-        title="Confirm Status Change"
-        description={`Are you sure you want to change the status to "${confirmDialog.newStatus}"? This action cannot be undone.`}
+        title={t.confirm.statusChangeTitle}
+        description={
+          confirmDialog.newStatus
+            ? t.confirm.statusChangeDescription(
+                t.status[confirmDialog.newStatus]
+              )
+            : ""
+        }
         onConfirm={handleConfirm}
       />
 
       <ConfirmDialog
         open={confirmDialog.open && confirmDialog.type === "delete"}
         onOpenChange={(open) => setConfirmDialog({ open, type: "delete" })}
-        title="Delete Request"
-        description="Are you sure you want to delete this request? This action cannot be undone."
+        title={t.confirm.deleteTitle}
+        description={t.confirm.deleteDescription}
         onConfirm={handleConfirm}
-        confirmText="Delete"
+        confirmText={t.buttons.delete}
       />
     </>
   );

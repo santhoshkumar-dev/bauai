@@ -17,13 +17,15 @@ import { MaterialTable } from "@/components/material-requests/MaterialTable";
 import { FilterBar } from "@/components/material-requests/FilterBar";
 import { CreateRequestDialog } from "@/components/material-requests/CreateRequestDialog";
 import { EditRequestDialog } from "@/components/material-requests/EditRequestDialog";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Plus } from "lucide-react";
 import type { MaterialRequest, Status } from "@/types";
-import type { MaterialRequestWithUser } from "@/hooks/useMaterialRequests";
 import type { User } from "@supabase/supabase-js";
 
 export default function MaterialRequestsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
@@ -61,7 +63,7 @@ export default function MaterialRequestsPage() {
     });
 
     return () => subscription.unsubscribe();
-  }, [router, supabase]);
+  }, [router]);
 
   const { data: requests, isLoading: requestsLoading } = useMaterialRequests(
     statusFilter === "all" ? undefined : statusFilter
@@ -89,14 +91,17 @@ export default function MaterialRequestsPage() {
       {/* Navigation */}
       <nav className="bg-white border-b">
         <div className="container mx-auto px-6 py-4 max-w-7xl">
-          <div className="flex items-center justify-between">
+          <div className="flex md:flex-row flex-col md:items-center gap-4 justify-between">
             <div>
-              <h1 className="text-xl font-bold">Material Request Tracker</h1>
+              <h1 className="text-xl font-bold">{t.nav.title}</h1>
               <p className="text-sm text-gray-500">{user.email}</p>
             </div>
-            <Button onClick={handleSignOut} variant="outline">
-              Sign Out
-            </Button>
+            <div className="flex items-center gap-4">
+              <LanguageSwitcher />
+              <Button onClick={handleSignOut} variant="outline">
+                {t.nav.signOut}
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
@@ -104,21 +109,21 @@ export default function MaterialRequestsPage() {
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8 max-w-7xl">
         <PageHeader
-          title="Material Requests"
-          description="Manage and track material requests for your construction projects"
+          title={t.pageHeader.materialRequests}
+          description={t.pageHeader.materialRequestsDescription}
         />
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>Total Requests</CardDescription>
+              <CardDescription>{t.stats.totalRequests}</CardDescription>
               <CardTitle className="text-3xl">{stats.total}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>Pending</CardDescription>
+              <CardDescription>{t.stats.pending}</CardDescription>
               <CardTitle className="text-3xl text-yellow-600">
                 {stats.pending}
               </CardTitle>
@@ -126,7 +131,7 @@ export default function MaterialRequestsPage() {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>Approved</CardDescription>
+              <CardDescription>{t.stats.approved}</CardDescription>
               <CardTitle className="text-3xl text-blue-600">
                 {stats.approved}
               </CardTitle>
@@ -134,7 +139,7 @@ export default function MaterialRequestsPage() {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>Fulfilled</CardDescription>
+              <CardDescription>{t.stats.fulfilled}</CardDescription>
               <CardTitle className="text-3xl text-green-600">
                 {stats.fulfilled}
               </CardTitle>
@@ -147,14 +152,14 @@ export default function MaterialRequestsPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>All Requests</CardTitle>
+                <CardTitle>{t.filter.allRequests}</CardTitle>
                 <CardDescription>
-                  View and manage material requests
+                  {t.pageHeader.materialRequestsDescription}
                 </CardDescription>
               </div>
               <Button onClick={() => setCreateDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                New Request
+                {t.buttons.newRequest}
               </Button>
             </div>
           </CardHeader>

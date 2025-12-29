@@ -2,6 +2,10 @@
 
 A modern, full-stack web application for managing construction material requests with AI-powered priority suggestions. Built with Next.js, Supabase, and TypeScript, this application provides a comprehensive solution for tracking material requests throughout their lifecycle from creation to fulfillment.
 
+**Recent Improvements:**
+
+As an enhancement, this application now includes real AI-based priority suggestions using Groq API and German language support (i18n) to align with BauAI's target market. The AI integration provides context-aware priority assessments, and the i18n system enables seamless language switching between English and German.
+
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
@@ -55,6 +59,9 @@ The application follows modern web development best practices with a focus on ty
 - **Priority Management**
 
   - Four priority levels: `low`, `medium`, `high`, `urgent`
+  - **AI-powered priority suggestions** using Groq API
+  - Context-aware analysis of material characteristics
+  - Automatic priority recommendations with explanations
   - AI-powered priority suggestions based on material type and quantity
   - Visual priority badges
   - Manual priority override
@@ -77,6 +84,9 @@ The application follows modern web development best practices with a focus on ty
   - Loading states and skeletons
   - Empty states for better UX
   - Error handling with user-friendly messages
+  - **Internationalization (i18n)** - English and German language support
+  - Language switcher in navigation
+  - Localized date formatting
 
 ### Authentication & Security
 
@@ -444,35 +454,38 @@ Mutation hook for deleting requests:
 
 ## 🤖 AI Priority Suggestion
 
-### Current Implementation
+### Implementation
 
-The AI priority suggestion (`hooks/useAIPrioritySuggestion.ts`) uses rule-based logic:
+The AI priority suggestion now uses **real AI integration with Groq API** to provide context-aware priority suggestions.
 
-1. **Material Type Analysis**
+**Features:**
 
-   - Critical materials (cement, concrete, rebar, steel) → `urgent` or `high`
-   - Structural materials (brick, timber, beams) → `high`
-   - Other materials → `low` or `medium`
+- Uses Groq LLM API (llama-3.1-8b-instant model) for intelligent priority assessment
+- Analyzes material name, quantity, unit, and optional notes
+- Understands construction-specific terminology (cement, steel, insulation, etc.)
+- Provides priority level (low, medium, high, urgent) with 1-2 sentence explanation
+- Secure backend implementation - API key never exposed to client
 
-2. **Quantity Analysis**
+**How it works:**
 
-   - Large quantities (>500) → `high`
-   - Medium quantities (>100) → `medium`
-   - Small quantities → `low`
+1. User fills in material request form (name, quantity, unit, notes)
+2. Clicks "AI Suggest" button
+3. Frontend calls `/api/ai/priority` route handler
+4. Backend securely calls Groq API with construction-focused prompt
+5. AI analyzes context and returns priority suggestion with explanation
+6. Suggestion is displayed and priority field is auto-filled
 
-3. **Combined Logic**
-   - Critical material + high quantity → `urgent`
-   - Critical material → `high`
-   - High quantity → `high`
-   - Default → `low`
+**Setup:**
 
-### Future: Real AI Integration
+1. Get a Groq API key from [console.groq.com](https://console.groq.com)
+2. Add to environment variables: `GROQ_API_KEY=your_key_here`
+3. The API route handles all authentication and error handling
 
-See `future-ai.txt` for implementation guide. The system is designed to easily integrate with:
+**Architecture:**
 
-- OpenAI GPT-4
-- Anthropic Claude
-- Other LLM APIs
+- API Route: `app/api/ai/priority/route.ts` - Secure backend endpoint
+- Hook: `hooks/useAIPrioritySuggestion.ts` - React Query mutation
+- UI: Integrated into `CreateRequestDialog` component
 
 ## 📦 Build & Deployment
 
@@ -507,19 +520,45 @@ npm start
 
 Ensure these are set in your deployment platform:
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous key
+- `GROQ_API_KEY` - Your Groq API key (for AI priority suggestions)
+
+## 🌍 Internationalization (i18n)
+
+The application now supports **English and German** languages with a lightweight, dictionary-based translation system.
+
+**Features:**
+
+- Language switcher in navigation bar (EN / DE)
+- All UI text is translatable (buttons, labels, status, priorities, etc.)
+- Localized date formatting (German format when language = de)
+- Language preference persisted in localStorage
+- Default language detection from browser settings
+
+**Implementation:**
+
+- Translation files: `lib/i18n/translations/en.ts` and `lib/i18n/translations/de.ts`
+- Language context: `contexts/LanguageContext.tsx`
+- Language switcher: `components/common/LanguageSwitcher.tsx`
+- All components use `useLanguage()` hook for translations
+
+**Adding new languages:**
+
+1. Create new translation file in `lib/i18n/translations/`
+2. Add locale to `Locale` type in `lib/i18n/index.ts`
+3. Add to translations object
+4. Add option to language switcher
 
 ## 🔮 Future Improvements
 
 ### High Priority
 
-1. **Real AI Integration**
+1. ~~**Real AI Integration**~~ ✅ **COMPLETED**
 
-   - Integrate OpenAI GPT-4 or Claude API for intelligent priority suggestions
-   - Context-aware suggestions based on project timeline, material availability, and historical data
-   - Natural language processing for material name recognition
-   - See `future-ai.txt` for implementation details
+   - ✅ Integrated Groq API for intelligent priority suggestions
+   - ✅ Context-aware suggestions based on material characteristics
+   - ✅ Natural language processing for construction terminology
 
 2. **Project Management**
 

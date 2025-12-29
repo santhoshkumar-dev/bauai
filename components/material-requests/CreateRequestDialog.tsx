@@ -30,6 +30,7 @@ import {
 } from "@/schema/materialRequest.schema";
 import { useCreateRequest } from "@/hooks/useCreateRequest";
 import { useAIPrioritySuggestion } from "@/hooks/useAIPrioritySuggestion";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Priority, Unit } from "@/types";
 
 interface CreateRequestDialogProps {
@@ -44,6 +45,7 @@ export function CreateRequestDialog({
   open,
   onOpenChange,
 }: CreateRequestDialogProps) {
+  const { t } = useLanguage();
   const [aiSuggestion, setAiSuggestion] = useState<{
     priority: Priority;
     explanation: string;
@@ -71,6 +73,7 @@ export function CreateRequestDialog({
   const materialName = watch("material_name");
   const quantity = watch("quantity");
   const unit = watch("unit");
+  const notes = watch("notes");
 
   const handleAISuggest = async () => {
     if (!materialName || !quantity) {
@@ -82,6 +85,7 @@ export function CreateRequestDialog({
         material_name: materialName,
         quantity,
         unit,
+        notes: notes || undefined,
       });
 
       setAiSuggestion(result);
@@ -112,19 +116,17 @@ export function CreateRequestDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Material Request</DialogTitle>
-          <DialogDescription>
-            Submit a new material request for your construction project.
-          </DialogDescription>
+          <DialogTitle>{t.form.createTitle}</DialogTitle>
+          <DialogDescription>{t.form.createDescription}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Material Name */}
           <div className="space-y-2">
-            <Label htmlFor="material_name">Material Name *</Label>
+            <Label htmlFor="material_name">{t.form.materialName} *</Label>
             <Input
               id="material_name"
-              placeholder="e.g., Portland Cement, Steel Rebar"
+              placeholder={t.form.materialNamePlaceholder}
               {...register("material_name")}
             />
             {errors.material_name && (
@@ -137,7 +139,7 @@ export function CreateRequestDialog({
           {/* Quantity and Unit */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity *</Label>
+              <Label htmlFor="quantity">{t.form.quantity} *</Label>
               <Input
                 id="quantity"
                 type="number"
@@ -153,7 +155,7 @@ export function CreateRequestDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="unit">Unit *</Label>
+              <Label htmlFor="unit">{t.form.unit} *</Label>
               <Select
                 value={watch("unit")}
                 onValueChange={(value) => setValue("unit", value as Unit)}
@@ -175,7 +177,7 @@ export function CreateRequestDialog({
           {/* Priority with AI Suggestion */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="priority">Priority *</Label>
+              <Label htmlFor="priority">{t.form.priority} *</Label>
               <Button
                 type="button"
                 variant="outline"
@@ -188,7 +190,7 @@ export function CreateRequestDialog({
                 ) : (
                   <Sparkles className="h-4 w-4 mr-2" />
                 )}
-                AI Suggest
+                {t.buttons.aiSuggest}
               </Button>
             </div>
             <Select
@@ -201,7 +203,7 @@ export function CreateRequestDialog({
               <SelectContent>
                 {PRIORITIES.map((priority) => (
                   <SelectItem key={priority} value={priority}>
-                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                    {t.priority[priority]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -216,17 +218,18 @@ export function CreateRequestDialog({
             <Alert className="border-blue-200 bg-blue-50">
               <Sparkles className="h-4 w-4 text-blue-600" />
               <AlertDescription className="text-blue-900">
-                <strong>AI Suggestion:</strong> {aiSuggestion.explanation}
+                <strong>{t.form.aiSuggestion}:</strong>{" "}
+                {aiSuggestion.explanation}
               </AlertDescription>
             </Alert>
           )}
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Label htmlFor="notes">{t.form.notes}</Label>
             <Textarea
               id="notes"
-              placeholder="Additional information about this request..."
+              placeholder={t.form.notesPlaceholder}
               rows={3}
               {...register("notes")}
             />
@@ -238,24 +241,22 @@ export function CreateRequestDialog({
           {/* Error Alert */}
           {createRequest.isError && (
             <Alert variant="destructive">
-              <AlertDescription>
-                Failed to create request. Please try again.
-              </AlertDescription>
+              <AlertDescription>{t.errors.createFailed}</AlertDescription>
             </Alert>
           )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
+              {t.buttons.cancel}
             </Button>
             <Button type="submit" disabled={createRequest.isPending}>
               {createRequest.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
+                  {t.buttons.creating}
                 </>
               ) : (
-                "Create Request"
+                t.buttons.createRequest
               )}
             </Button>
           </DialogFooter>

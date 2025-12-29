@@ -5,6 +5,7 @@ interface PrioritySuggestionInput {
   material_name: string;
   quantity: number;
   unit: string;
+  notes?: string;
 }
 
 interface PrioritySuggestionOutput {
@@ -12,83 +13,42 @@ interface PrioritySuggestionOutput {
   explanation: string;
 }
 
+/**
+ * Hook for AI-powered priority suggestions using Groq API.
+ *
+ * Calls the backend API route which securely handles the Groq API key
+ * and returns a context-aware priority suggestion based on material
+ * characteristics, quantity, and optional notes.
+ */
 export const useAIPrioritySuggestion = () => {
   return useMutation({
     mutationFn: async (
       input: PrioritySuggestionInput
     ): Promise<PrioritySuggestionOutput> => {
-      // Simulate AI processing delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const response = await fetch("/api/ai/priority", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          material_name: input.material_name,
+          quantity: input.quantity,
+          unit: input.unit,
+          notes: input.notes,
+        }),
+      });
 
-      const { material_name, quantity, unit } = input;
-      const lowerName = material_name.toLowerCase();
-
-      // Critical materials that need urgent attention
-      const urgentMaterials = [
-        "cement",
-        "concrete",
-        "rebar",
-        "steel",
-        "reinforcement",
-      ];
-
-      // Important structural materials
-      const highPriorityMaterials = [
-        "brick",
-        "timber",
-        "wood",
-        "insulation",
-        "beam",
-        "column",
-      ];
-
-      // Check for urgent conditions
-      if (urgentMaterials.some((mat) => lowerName.includes(mat))) {
-        if (quantity > 100) {
-          return {
-            priority: "urgent",
-            explanation:
-              "Critical construction material with high quantity. Delays could impact project timeline significantly.",
-          };
-        }
-        return {
-          priority: "high",
-          explanation:
-            "Critical construction material requiring prompt procurement.",
-        };
+      if (!response.ok) {
+        const error = await response
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
+        throw new Error(error.error || "Failed to get AI suggestion");
       }
 
-      // Check for high priority materials
-      if (highPriorityMaterials.some((mat) => lowerName.includes(mat))) {
-        return {
-          priority: "high",
-          explanation:
-            "Essential structural material needed for construction progress.",
-        };
-      }
-
-      // Quantity-based prioritization
-      if (quantity > 500) {
-        return {
-          priority: "high",
-          explanation:
-            "Large quantity requires advance procurement and logistics planning.",
-        };
-      }
-
-      if (quantity > 100) {
-        return {
-          priority: "medium",
-          explanation:
-            "Moderate quantity, standard procurement timeline applicable.",
-        };
-      }
-
-      // Default to low priority
+      const data = await response.json();
       return {
-        priority: "low",
-        explanation:
-          "Small quantity, can be procured as needed without urgency.",
+        priority: data.priority,
+        explanation: data.explanation,
       };
     },
   });
