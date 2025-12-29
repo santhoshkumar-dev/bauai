@@ -123,7 +123,12 @@ export default function LoginPage() {
               )}
             </Button>
 
+            {/* User test user credentials: test@test.com, password: 123456789 */}
             <p className="text-sm text-center text-gray-600">
+              Test User credentials: test@test.com, password: 12345678
+            </p>
+
+            {/* <p className="text-sm text-center text-gray-600">
               Don&apos;t have an account?{" "}
               <Link
                 href="/auth/register"
@@ -131,7 +136,7 @@ export default function LoginPage() {
               >
                 Register here
               </Link>
-            </p>
+            </p> */}
           </CardFooter>
         </form>
       </Card>
