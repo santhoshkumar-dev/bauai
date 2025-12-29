@@ -125,7 +125,7 @@ export default function LoginPage() {
 
             {/* User test user credentials: test@test.com, password: 123456789 */}
             <p className="text-sm text-center text-gray-600">
-              Test User credentials: test@test.com, password: 12345678
+              Test User credentials: test@test.com, password: 123456789
             </p>
 
             {/* <p className="text-sm text-center text-gray-600">
