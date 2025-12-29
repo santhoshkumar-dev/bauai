@@ -4,21 +4,21 @@ A modern, full-stack web application for managing construction material requests
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Environment Setup](#environment-setup)
-- [Database Schema](#database-schema)
-- [Key Components](#key-components)
-- [Authentication](#authentication)
-- [API & Data Fetching](#api--data-fetching)
-- [AI Priority Suggestion](#ai-priority-suggestion)
+- [Overview](#-overview)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Environment Setup](#-environment-setup)
+- [Database Schema](#-database-schema)
+- [Key Components](#-key-components)
+- [Authentication](#-authentication)
+- [API & Data Fetching](#-api--data-fetching)
+- [AI Priority Suggestion](#-ai-priority-suggestion)
 - [Deployment](#deployment)
-- [Future Improvements](#future-improvements)
-- [Contributing](#contributing)
-- [License](#license)
+- [Future Improvements](#-future-improvements)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ## 🎯 Overview
 
